@@ -6,9 +6,50 @@ function startup() {
     el.addEventListener('touchcancel', handleCancel);
     el.addEventListener('touchmove', handleMove);
     window.addEventListener('resize', resizeCanvas, false);
+
+    render = anime({
+        duration: Infinity,
+        update: canvasUpdate
+    });
+      
+    // Fill vars with content
+    canvasEl = document.getElementById('mycanvas');
+    ctx = canvasEl.getContext('2d');
+
+    // Init canvases
+    //ctx.clearRect(0, 0, canvasEl.width, canvasEl.height);  
+    ctx.fillStyle = "#FF0000";
+    ctx.fillRect(0, 0, canvasEl.width, canvasEl.height);
+    
+    backCanvas = document.createElement('canvas');
+    backCanvas.width = canvasEl.width;
+    backCanvas.height = canvasEl.height;
+    
+    var backCtx = backCanvas.getContext('2d');
+    backCtx.drawImage(canvasEl, 0, 0);
+    
+    /*
+    // TODO: need update for touchstart not click
+    var tap = ('ontouchstart' in window || navigator.msMaxTouchPoints) ? 'touchstart' : 'mousedown';
+
+    document.addEventListener(tap, function(e) {
+        // window.human = true;
+        var backCtx = backCanvas.getContext('2d');
+        backCtx.drawImage(canvasEl, 0, 0);
+        render.play();
+        // TODO: need update for touchstart not click
+        //updateCoords(e);
+        var playerId = Math.floor(Math.random() * 6);
+        animateParticules(e.clientX, e.clientY, playerId);
+    }, false);
+    */
+
     resizeCanvas();
     main_initPlayers();
     initTimer(false);
+
+    initCanvas();
+
     log('Initialized.');
 }
 
@@ -18,6 +59,72 @@ function log(msg) {
     const container = document.getElementById('log');
     container.textContent = `${msg} \n${container.textContent}`;
 }
+
+
+function canvasUpdate() {
+    // TODO: Replace by new function to copy canvas to another one instead clearing
+    //ctx.clearRect(0, 0, canvasEl.width, canvasEl.height);  
+    ctx.shadowBlur = 0;
+    ctx.drawImage(backCanvas, 0, 0);
+}
+
+
+function renderParticule(anim) {
+    //ctx.drawImage(backCanvas, 0, 0);
+    for (var i = 0; i < anim.animatables.length; i++) {
+      anim.animatables[i].target.draw();
+    }
+  }
+
+  
+function setParticuleDirection(p) {
+    var angle = anime.random(0, 360) * Math.PI / 180;
+    var value = anime.random(120, 360);
+    var radius = [-1, 1][anime.random(0, 1)] * value;
+    return {
+      x: p.x + radius * Math.cos(angle),
+      y: p.y + radius * Math.sin(angle)
+    }
+  }
+  
+
+function createParticule(x, y, playerId) {
+    var p = {};
+    var opacity = Math.floor((Math.random() * 80) + (255 - 80)); 
+
+    p.x = x;
+    p.y = y;
+    
+    p.color = `rgba(${main_playerColorOnly(playerId)}, ${opacity})`;
+    // p.color = colors[anime.random(0, colors.length - 1)];
+    p.radius = anime.random(16, 32);
+    p.endPos = setParticuleDirection(p);
+    p.draw = function() {
+      ctx.beginPath();
+      ctx.arc(p.x, p.y, p.radius, 0, 2 * Math.PI, true);
+      ctx.fillStyle = p.color;
+      ctx.fill();
+    }
+    return p;
+}
+
+
+function animateParticules(x, y, playerId) {
+    var particules = [];
+
+    for (var i = 0; i < numberOfParticules; i++) {
+      particules.push(createParticule(x, y, playerId));
+    }
+    anime.timeline().add({
+      targets: particules,
+      x: function(p) { return p.endPos.x; },
+      y: function(p) { return p.endPos.y; },
+      radius: 0.1,
+      duration: anime.random(3000, 5000),
+      easing: 'easeOutExpo',
+      update: renderParticule
+    });
+  }
 
 
 /* Helper functions */
@@ -46,10 +153,15 @@ function redraw() {
 /* Resize Canvas to max. size */
 function resizeCanvas() {
     const el = document.getElementById('mycanvas');
+    
     /* Use complete width */
     el.width = el.clientWidth;
+    
     /* Use remaining height including a margin to the edge */
     el.height = document.documentElement.clientHeight - el.getBoundingClientRect().top - 5;
+    backCanvas.width = el.width;
+    backCanvas.height = el.height;
+
     BASERADIUS = Math.min(el.width, el.height) / 10;
     redraw();
 }
@@ -97,16 +209,30 @@ function updateGraphics(time) {
 }
 
 
-/* Draw black rectangle */
-function fadeOut(x, y, width, height, ctx) {
 
-    console.log(`${x}, ${y}, ${width}, ${height}`);
-    const color = 'rgba(0, 0, 0, 0.15)';     /* black with opacity 0,5 */
-    ctx.fillStyle = color;
-    ctx.strokeStyle = color;
-    ctx.beginPath();
-    ctx.fillRect(x, y, width, height);
-    ctx.stroke();
+/* Create test content on canvas */
+function initCanvas() {
+    ctx.fillStyle = "#000000";
+    ctx.fillRect(0, 0, canvasEl.width, canvasEl.height);
+
+    /*
+    for (var i = 0; i < 8; i++) {
+        var x = Math.floor(Math.random() * 400);
+        var y = Math.floor(Math.random() * 400);
+        var color = main_playerColor(Math.floor(Math.random() * 6));
+        
+        ctx.fillStyle = color;
+        ctx.strokeStyle = color;
+        ctx.shadowBlur = 2 * BASERADIUS;
+        // ctx.shadowBlur = 0;
+        ctx.shadowColor = "lightgrey";
+        ctx.beginPath();
+        ctx.arc(x, y, 2 * BASERADIUS, 0, 2 * Math.PI);
+        ctx.fill();
+        ctx.stroke();
+        ctx.shadowBlur = 0;
+    }
+    */
 }
 
 
@@ -118,13 +244,14 @@ function showWinner(i) {
     /* Get current player data */
     const x = xCoord(ongoingTouches[i], el);
     const y = yCoord(ongoingTouches[i], el);
-    const color = main_playerColor(i);
+    // const color = main_playerColor(i);
 
-    fadeOut(0, 0, x - BASERADIUS * 1.5, el.height, ctx);
-    fadeOut(x + BASERADIUS * 1.5, 0, el.width - (x + BASERADIUS * 1.5), el.height, ctx);
-    fadeOut(x - BASERADIUS * 1.5 - 1, 0, BASERADIUS * 3 + 1, y - BASERADIUS * 1.5, ctx);
-    fadeOut(x - BASERADIUS * 1.5 - 1, y + BASERADIUS * 1.5, BASERADIUS * 3 + 1, el.height - (y + BASERADIUS * 1.5), ctx);
+    var backCtx = backCanvas.getContext('2d');
+    backCtx.drawImage(canvasEl, 0, 0);
+    render.play();
+    animateParticules(x, y, i);
 
+    /*
     ctx.fillStyle = color;
     ctx.strokeStyle = color;
     ctx.shadowBlur = 2 * BASERADIUS;
@@ -133,6 +260,7 @@ function showWinner(i) {
     ctx.arc(x, y, 2 * BASERADIUS, 0, 2 * Math.PI);
     ctx.fill();
     ctx.stroke();
+    */
 }
 
 
@@ -316,11 +444,28 @@ function handleMove(evt) {
 const TIMESLICE = 25;   /* frequency of timer events in ms */
 const TIMING = 3000;    /* total time in ms */
 
-let BASERADIUS = 40;  /* base radius */
+let BASERADIUS = 40;    /* base radius */
 
 let timer;              /* global timer element */
 let time = 0;           /* global time counter in ms */
-let touched = false;    /* start in untocuhed mode */
+let touched = false;    /* start in untouched mode */
 
 document.addEventListener("DOMContentLoaded", startup);
 const ongoingTouches = [];
+
+/* from firework.js 
+Source:
+    CodePen Home
+    Anime.js Fireworks canvas demo
+    Julian Garnier
+*/
+var backCanvas;
+var canvasEl;
+var ctx;
+var numberOfParticules = 50;
+var pointerX = 0;
+var pointerY = 0;
+var tap;
+
+var render;
+
