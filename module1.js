@@ -6,7 +6,7 @@ function startup() {
     el.addEventListener('touchcancel', handleCancel);
     el.addEventListener('touchmove', handleMove);
     window.addEventListener('resize', resizeCanvas, false);
-
+   
     render = anime({
         duration: Infinity,
         update: canvasUpdate
@@ -194,7 +194,8 @@ function updateGraphics(time) {
 
             x = x + Math.floor(r * Math.sin(a));
             y = y + Math.floor(r * Math.cos(a));
-
+            
+            ctx.save();
             ctx.fillStyle = color;
             /* ctx.fillStyle = 'white'; */
             ctx.strokeStyle = color;
@@ -204,6 +205,7 @@ function updateGraphics(time) {
             ctx.arc(x, y, d, 0, 2 * Math.PI);
             ctx.fill();
             ctx.stroke();
+            ctx.restore();
         }
     }
 }
@@ -212,10 +214,11 @@ function updateGraphics(time) {
 
 /* Create test content on canvas */
 function initCanvas() {
+    ctx.save();
     ctx.fillStyle = "#000000";
     ctx.fillRect(0, 0, canvasEl.width, canvasEl.height);
 
-    /*
+    
     for (var i = 0; i < 8; i++) {
         var x = Math.floor(Math.random() * 400);
         var y = Math.floor(Math.random() * 400);
@@ -230,17 +233,30 @@ function initCanvas() {
         ctx.arc(x, y, 2 * BASERADIUS, 0, 2 * Math.PI);
         ctx.fill();
         ctx.stroke();
-        ctx.shadowBlur = 0;
+        //ctx.shadowBlur = 0;
     }
-    */
+    
+    ctx.restore();
 }
+
+
+function simulateWinner() {
+    
+    const x = Math.floor(Math.random() * backCanvas.width);
+    const y = Math.floor(Math.random() * backCanvas.height);
+    // const color = main_playerColor(i);
+
+    var backCtx = backCanvas.getContext('2d');
+    backCtx.drawImage(canvasEl, 0, 0);
+    render.play();
+    animateParticules(x, y, Math.floor(Math.random()*4));
+ 
+}
+
 
 
 /* Show winner */
 function showWinner(i) {
-    const el = document.getElementById('mycanvas');
-    const ctx = el.getContext('2d');
-
     /* Get current player data */
     const x = xCoord(ongoingTouches[i], el);
     const y = yCoord(ongoingTouches[i], el);
