@@ -269,6 +269,7 @@ function showWinner(i) {
     // const color = main_playerColor(i);
 
     gotWinner = true;
+    navigator.vibrate();
 
     var backCtx = backCanvas.getContext('2d');
     backCtx.drawImage(canvasEl, 0, 0);
