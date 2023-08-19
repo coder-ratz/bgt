@@ -223,7 +223,7 @@ function initCanvas() {
     ctx.fillStyle = "#000000";
     ctx.fillRect(0, 0, canvasEl.width, canvasEl.height);
 
-    
+    /*
     for (var i = 0; i < 8; i++) {
         var x = Math.floor(Math.random() * 400);
         var y = Math.floor(Math.random() * 400);
@@ -240,6 +240,7 @@ function initCanvas() {
         ctx.stroke();
         //ctx.shadowBlur = 0;
     }
+    */
     
     ctx.restore();
 }
