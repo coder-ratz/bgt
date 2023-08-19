@@ -1,6 +1,8 @@
+"use strict"
+
 /* Init all touch events */
 function startup() {
-    const el = document.getElementById('mycanvas');
+    el = document.getElementById('mycanvas');
     el.addEventListener('touchstart', handleStart);
     el.addEventListener('touchend', handleEnd);
     el.addEventListener('touchcancel', handleCancel);
@@ -63,14 +65,16 @@ function log(msg) {
 
 function canvasUpdate() {
     // TODO: Replace by new function to copy canvas to another one instead clearing
-    //ctx.clearRect(0, 0, canvasEl.width, canvasEl.height);  
-    ctx.shadowBlur = 0;
-    ctx.drawImage(backCanvas, 0, 0);
+    if (gotWinner) {
+        ctx.clearRect(0, 0, canvasEl.width, canvasEl.height);  
+        ctx.shadowBlur = 0;
+        ctx.drawImage(backCanvas, 0, 0);
+    }
 }
 
 
 function renderParticule(anim) {
-    //ctx.drawImage(backCanvas, 0, 0);
+    ctx.drawImage(backCanvas, 0, 0);
     for (var i = 0; i < anim.animatables.length; i++) {
       anim.animatables[i].target.draw();
     }
@@ -135,6 +139,7 @@ function initTimer(flag) {
         /* Start timer */
         timer = setInterval(timerEvent, TIMESLICE);
         time = 0;
+        gotWinner = false;
         log('Timer started.');
         timerEvent();
     } else {
@@ -262,6 +267,8 @@ function showWinner(i) {
     const y = yCoord(ongoingTouches[i], el);
     // const color = main_playerColor(i);
 
+    gotWinner = true;
+
     var backCtx = backCanvas.getContext('2d');
     backCtx.drawImage(canvasEl, 0, 0);
     render.play();
@@ -369,7 +376,7 @@ function handleStart(evt) {
         main_initPlayers();
         resizeCanvas();
     }
-    const el = document.getElementById('mycanvas');
+    //const el = document.getElementById('mycanvas');
     const ctx = el.getContext('2d');
     const touches = evt.changedTouches;
 
@@ -466,7 +473,6 @@ let timer;              /* global timer element */
 let time = 0;           /* global time counter in ms */
 let touched = false;    /* start in untouched mode */
 
-document.addEventListener("DOMContentLoaded", startup);
 const ongoingTouches = [];
 
 /* from firework.js 
@@ -482,6 +488,10 @@ var numberOfParticules = 50;
 var pointerX = 0;
 var pointerY = 0;
 var tap;
+var gotWinner = false;
 
 var render;
+
+var el = document.getElementById('mycanvas');
+document.addEventListener("DOMContentLoaded", startup);
 
