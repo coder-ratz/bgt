@@ -30,11 +30,11 @@ The application has no control elements except the players' touchs on the screen
     - `function timerEvent()`: triggered from timer element.
     - `function drawStart()`: starts to draw when a touchstart event.
     - `function drawCont()`: continues to draw when a touchstart event.
-    - `function hadleStart()`: handles touchstart event.
-    - `function hadleEnd()`: handles touchend event.
-    - `function hadleCancel()`: handles touchcancel event.
-    - `function hadleMove()`: handles touchmove event.
+    - `function handleStart()`: handles touchstart event.
+    - `function handleEnd()`: handles touchend event.
+    - `function handleCancel()`: handles touchcancel event.
+    - `function handleMove()`: handles touchmove event.
     - `TIMESLICE`: frequency of timer events in ms.
     - `TIMING`: total time in ms.
-    - `BASERADIUS`: base radius for grahisc in pixel, calculed during `resizeCanvas()`.
+    - `BASERADIUS`: base radius for graphics in pixel, calculed during `resizeCanvas()`.
 
