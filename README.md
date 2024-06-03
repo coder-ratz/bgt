@@ -1,4 +1,7 @@
 # BOARD GAME TOOLS
+
+| Ralf Tischer, 2022.
+
 #### URL:
 https://ralf-tischer.github.io/bgt/index.html
 #### Making Of Video:
