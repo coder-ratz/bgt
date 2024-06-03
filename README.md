@@ -1,6 +1,6 @@
 # BOARD GAME TOOLS
 #### URL:
-https://coder-ratz.github.io/bgt/index.html
+https://ralf-tischer.github.io/bgt/index.html
 #### Making Of Video:
 https://youtu.be/31NmYvYz69s
 #### Description:
